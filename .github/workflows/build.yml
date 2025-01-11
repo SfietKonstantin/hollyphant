@@ -1,0 +1,100 @@
+name: Github CI build
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+env:
+  SFOS_RELEASE: 4.5.0.16
+
+jobs:
+  build-sfos-armv7hl:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        submodules: recursive
+
+    - name: Build armv7hl
+      run:  |
+        .github/workflows/build-sfos-package.sh armv7hl
+
+  build-sfos-aarch64:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          submodules: recursive
+
+      - name: Build aarch64
+        run:  |
+          .github/workflows/build-sfos-package.sh aarch64
+
+  build-sfos-i486:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        submodules: recursive
+
+    - name: Build i486
+      run:  |
+        .github/workflows/build-sfos-package.sh i486
+
+
+  build-dev:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        submodules: recursive
+
+    - uses: actions-rs/toolchain@v1
+      with:
+        profile: minimal
+        toolchain: "1.52.1"
+        default: true
+
+    - name: Install Qt
+      uses: jurplel/install-qt-action@v4
+      with:
+        version: 5.15.2
+        host: linux
+        target: desktop
+        arch: gcc_64
+        dir: ${{ runner.temp }}
+
+    - name: Build
+      run:  |
+        cmake . -DCMAKE_BUILD_TYPE=Debug
+        make
+
+
+  build-dev-shim:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        submodules: recursive
+
+    - name: Install Qt
+      uses: jurplel/install-qt-action@v4
+      with:
+        version: 5.15.2
+        host: linux
+        target: desktop
+        arch: gcc_64
+        dir: ${{ runner.temp }}
+
+    - name: Build
+      run:  |
+        cmake . -DCMAKE_BUILD_TYPE=Debug -DUSE_SHIM=ON
+        make

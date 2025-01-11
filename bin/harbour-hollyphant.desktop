@@ -1,0 +1,11 @@
+[Desktop Entry]
+Type=Application
+X-Nemo-Application-Type=silica-qt5
+Icon=harbour-hollyphant
+Exec=harbour-hollyphant
+Name=Hollyphant
+
+[X-Sailjail]
+Permissions=Internet;Camera;Pictures
+OrganizationName=com.github.SfietKonstantin
+ApplicationName=harbour-hollyphant

@@ -1,0 +1,6 @@
+[submodule "cmake/corrosion"]
+	path = cmake/corrosion
+	url = https://github.com/corrosion-rs/corrosion.git
+[submodule "3rdparty/libqmlext"]
+	path = 3rdparty/libqmlext
+	url = https://github.com/SfietKonstantin/libqmlext.git
