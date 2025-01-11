@@ -1,5 +1,6 @@
 #include <QtQml/QQmlEngine>
 #include <QtQml/qqml.h>
+#include <hollyphant/hollyphant.h>
 #include <hollyphant/main.h>
 #include <qmlext/eventbus.h>
 #include <qmlext/item.h>
@@ -17,7 +18,8 @@ static QObject *createEventBus(QQmlEngine *engine, QJSEngine *jsEngine)
 int main(int argc, char *argv[])
 {
     qmlRegisterType<qmlext::Item>("harbour.hollyphant", 1, 0, "ExtItem");
-    qmlRegisterSingletonType<qmlext::EventBus>("harbour.hollyphant", 1, 0, "ExtEventBus", createEventBus);
+    qmlRegisterUncreatableType<qmlext::EventBus>("harbour.hollyphant", 1, 0, "ExtEventBus", "Please use ExtEventBus global variable");
+    qmlRegisterSingletonType<qmlext::EventBus>("harbour.hollyphant", 1, 0, "EventBus", createEventBus);
 
 #ifdef WITH_SAILFISH
     return SailfishApp::main(argc, argv);

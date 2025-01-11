@@ -8,7 +8,7 @@ Name:       harbour-hollyphant
 # >> macros
 # << macros
 
-Summary:    Mastodon client
+Summary:    Mastodon and Bluesky client
 Version:    0.1
 Release:    1
 Group:      Applications/Internet
@@ -31,7 +31,7 @@ BuildRequires:  qt5-qmake
 BuildRequires:  desktop-file-utils
 
 %description
-A simple Mastodon client
+A Mastodon and Bluesky client with many features
 
 
 %prep

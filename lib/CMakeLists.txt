@@ -8,16 +8,19 @@ set(CMAKE_AUTOMOC ON)
 
 if (${USE_SHIM})
     set(${PROJECT_NAME}_MAIN_SRCS
-        main-shim.cpp
+        shim/main.cpp
     )
 else()
     set(${PROJECT_NAME}_MAIN_SRCS
-        main-shim.cpp
+        shim/main.cpp
     )
 endif()
 
 add_library(${PROJECT_NAME} STATIC
     hollyphant/main.h
+    hollyphant/hollyphant.h
+
+    hollyphant.cpp
     ${${PROJECT_NAME}_MAIN_SRCS}
 )
 

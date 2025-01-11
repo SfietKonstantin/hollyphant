@@ -8,7 +8,7 @@ on:
     branches:
       - main
 env:
-  SFOS_RELEASE: 4.5.0.16
+  SFOS_RELEASE: 4.6.0.13
 
 jobs:
   build-sfos-armv7hl:

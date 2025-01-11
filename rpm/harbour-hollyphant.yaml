@@ -1,5 +1,5 @@
 Name: harbour-hollyphant
-Summary: Mastodon client
+Summary: Mastodon and Bluesky client
 Version: 0.1
 Release: 1
 Group: Applications/Internet
@@ -8,7 +8,7 @@ License: GPLv3
 Sources:
 - '%{name}-%{version}.tar.bz2'
 Description: |
-  A simple Mastodon client
+  A Mastodon and Bluesky client with many features
 Configure: none
 Builder: none
 
