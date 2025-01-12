@@ -1,5 +1,5 @@
-project(harbour-hollyphant)
 cmake_minimum_required(VERSION 3.14)
+project(harbour-hollyphant)
 
 add_subdirectory(cmake/corrosion)
 add_subdirectory(3rdparty)
