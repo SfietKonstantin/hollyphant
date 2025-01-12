@@ -56,11 +56,9 @@ jobs:
       with:
         submodules: recursive
 
-    - uses: actions-rs/toolchain@v1
+    - uses: dtolnay/rust-toolchain@stable
       with:
-        profile: minimal
-        toolchain: "1.52.1"
-        default: true
+        toolchain: "1.75.0"
 
     - name: Install Qt
       uses: jurplel/install-qt-action@v4
