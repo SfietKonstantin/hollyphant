@@ -52,18 +52,6 @@ A Mastodon and Bluesky client with many features
 %define SB2_TARGET i686-unknown-linux-gnu
 %endif
 
-%ifnarch %ix86
-export CARGO_TARGET_I686_UNKNOWN_LINUX_GNU_LINKER=host-gcc
-%endif
-
-# This avoids a malloc hang in sb2 gated calls to execvp/dup2/chdir
-# during fork/exec. It has no effect outside sb2 so doesn't hurt
-# native builds.
-export SB2_RUST_EXECVP_SHIM="/usr/bin/env LD_PRELOAD=/usr/lib/libsb2/libsb2.so.1 /usr/bin/env"
-export SB2_RUST_USE_REAL_EXECVP=Yes
-export SB2_RUST_USE_REAL_FN=Yes
-export SB2_RUST_NO_SPAWNVP=Yes
-
 # Set compiler for build scripts
 %ifnarch %ix86
 export CARGO_TARGET_I686_UNKNOWN_LINUX_GNU_LINKER=host-gcc
@@ -79,8 +67,7 @@ export AR_aarch64_unknown_linux_gnu=aarch64-meego-linux-gnu-ar
 
 export CARGO_BUILD_TARGET=%SB2_TARGET
 
-#%cmake -DCMAKE_BUILD_TYPE=Release -DRust_CARGO_TARGET=%SB2_TARGET .
-%cmake -DRust_CARGO_TARGET=%SB2_TARGET .
+%cmake -DCMAKE_BUILD_TYPE=Release -DRust_CARGO_TARGET=%SB2_TARGET .
 make %{?_smp_mflags}
 # << build pre
 
@@ -92,6 +79,10 @@ make %{?_smp_mflags}
 %install
 rm -rf %{buildroot}
 # >> install pre
+%ifnarch %ix86
+export CARGO_TARGET_I686_UNKNOWN_LINUX_GNU_LINKER=host-gcc
+%endif
+
 %make_install
 # << install pre
 

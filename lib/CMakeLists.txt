@@ -16,9 +16,8 @@ if (${USE_SHIM})
     )
 else()
     # Use Rust
-    corrosion_import_crate(MANIFEST_PATH rust/Cargo.toml CRATES hollyphant-ffi FLAGS -j1)
-
     if ("${SAILFISH_FOUND}")
+        corrosion_import_crate(MANIFEST_PATH rust/Cargo.toml CRATES hollyphant-ffi FLAGS -j1)
         # We need to help Rust with OpenSSL and cross-compilation
         corrosion_set_env_vars(hollyphant_ffi
             "CMAKE_CURRENT_BINARY_DIR=${CMAKE_CURRENT_BINARY_DIR}"
@@ -33,6 +32,7 @@ else()
             "AARCH64_UNKNOWN_LINUX_GNU_OPENSSL_INCLUDE_DIR=/usr/include"
         )
     else()
+        corrosion_import_crate(MANIFEST_PATH rust/Cargo.toml CRATES hollyphant-ffi)
         corrosion_set_env_vars(hollyphant_ffi
             "CMAKE_CURRENT_BINARY_DIR=${CMAKE_CURRENT_BINARY_DIR}"
         )
