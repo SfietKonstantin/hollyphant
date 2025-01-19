@@ -13,6 +13,7 @@ pub mod cxxbridge {
 
         type RustEventPublisher;
         fn publish_set(self: &RustEventPublisher, key: &CxxString, value: &CxxString);
+        fn publish_append(self: &RustEventPublisher, key: &CxxString, value: &CxxString);
 
         // Error formatting
         fn format_error_mas_application_register(instance: &str) -> String;
@@ -76,5 +77,11 @@ impl EventPublisher for CxxEventPublisher {
         let_cxx_string!(cxx_key = key);
         let_cxx_string!(cxx_value = value);
         self.0.publish_set(&cxx_key, &cxx_value)
+    }
+
+    fn publish_append(&self, key: &[u8], value: &[u8]) {
+        let_cxx_string!(cxx_key = key);
+        let_cxx_string!(cxx_value = value);
+        self.0.publish_append(&cxx_key, &cxx_value)
     }
 }

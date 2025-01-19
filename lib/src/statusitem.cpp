@@ -1,4 +1,5 @@
 #include <hollyphant/statusitem.h>
+#include <qmlext/listmodel.h>
 
 namespace hollyphant {
 
@@ -7,12 +8,12 @@ StatusItem::StatusItem(QObject *parent)
 {
 }
 
-qmlext::Item *StatusItem::item() const
+QObject *StatusItem::item() const
 {
     return m_item;
 }
 
-void StatusItem::setItem(qmlext::Item *item)
+void StatusItem::setItem(QObject *item)
 {
     if (m_item != item) {
         // Disconnect from previous item
@@ -24,7 +25,14 @@ void StatusItem::setItem(qmlext::Item *item)
 
         // Connect to new item
         if (m_item != nullptr) {
-            connect(m_item, &qmlext::Item::valueChanged, this, &StatusItem::handleValueChanged);
+            auto *extItem = qobject_cast<qmlext::Item *>(m_item);
+            if (extItem != nullptr) {
+                connect(extItem, &qmlext::Item::valueChanged, this, &StatusItem::handleItemValueChanged);
+            }
+            auto *extListModel = qobject_cast<qmlext::ListModel *>(m_item);
+            if (extListModel != nullptr) {
+                connect(extListModel, &qmlext::ListModel::valueChanged, this, &StatusItem::handleListModelValueChanged);
+            }
         }
 
         emit itemChanged();
@@ -51,15 +59,31 @@ const QString &StatusItem::details() const
     return m_details;
 }
 
-void StatusItem::handleValueChanged()
+void StatusItem::handleItemValueChanged()
 {
-    if (m_item == nullptr) {
+    auto extItem = qobject_cast<qmlext::Item *>(m_item);
+    if (extItem == nullptr) {
         return;
     }
 
-    const auto value = m_item->value().toMap();
-    if (value.contains("status")) {
-        const auto status = value.value("status").toString();
+    handleValueChanged(extItem->value());
+}
+
+void StatusItem::handleListModelValueChanged()
+{
+    auto extListModel = qobject_cast<qmlext::ListModel *>(m_item);
+    if (extListModel == nullptr) {
+        return;
+    }
+
+    handleValueChanged(extListModel->value());
+}
+
+void StatusItem::handleValueChanged(const QVariant &value)
+{
+    const auto mapValue = value.toMap();
+    if (mapValue.contains("status")) {
+        const auto status = mapValue.value("status").toString();
         if (status == "in-progress") {
             setStatus(InProgress);
         } else if (status == "success") {
@@ -71,20 +95,20 @@ void StatusItem::handleValueChanged()
         }
     }
 
-    if (value.contains("value")) {
-        setValue(value.value("value"));
+    if (mapValue.contains("value")) {
+        setValue(mapValue.value("value"));
     } else {
         setValue(QVariant());
     }
 
-    if (value.contains("message")) {
-        setMessage(value.value("message").toString());
+    if (mapValue.contains("message")) {
+        setMessage(mapValue.value("message").toString());
     } else {
         setMessage(QString());
     }
 
-    if (value.contains("details")) {
-        setDetails(value.value("details").toString());
+    if (mapValue.contains("details")) {
+        setDetails(mapValue.value("details").toString());
     } else {
         setDetails(QString());
     }
