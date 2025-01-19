@@ -22,12 +22,6 @@ else()
     message("Building without Sailfish OS, for fast prototyping on desktop")
 endif()
 
-#if (${USE_SHIM})
-#    target_link_libraries(${PROJECT_NAME} hollyphant-shim)
-#else()
-#    target_link_libraries(${PROJECT_NAME} hollyphant-rs-cxx)
-#endif()
-
 install(TARGETS ${PROJECT_NAME}
     RUNTIME DESTINATION bin
 )
@@ -61,14 +55,10 @@ add_custom_target(otherfiles SOURCES
 
     qml/harbour-hollyphant.qml
     qml/cover/CoverPage.qml
-    qml/components/DialogError.qml
-    qml/components/ErrorItem.qml
-    qml/components/PageError.qml
-    qml/pages/LoginDialog.qml
-    qml/pages/LoginCodeDialog.qml
-    qml/pages/LoginFinalizationPage.qml
-    qml/pages/LoginPage.qml
-    qml/pages/MainPage.qml
+    qml/pages/WelcomePage.qml
+    qml/pages/accounts/NewAccountBskyDialog.qml
+    qml/pages/accounts/NewAccountDialog.qml
+    qml/pages/accounts/NewAccountMasAuthDialog.qml
 
     ${TsFiles}
 )

@@ -1,11 +1,38 @@
 import QtQuick 2.0
 import Sailfish.Silica 1.0
-import harbour.hollyphant 1.0
 
 Dialog {
     id: container
-    canAccept: blueskyUsernameField.text.length > 0
-               && blueskyPasswordField.text.length > 0
+    canAccept: {
+        switch (serviceCombo.currentIndex) {
+        case 0:
+            return masServerField.text.length > 0
+        case 1:
+            return bskyUsernameField.text.length > 0
+                    && bskyPasswordField.text.length > 0
+        default:
+            return false
+        }
+    }
+
+    acceptDestination: {
+        switch (serviceCombo.currentIndex) {
+        case 0:
+            return Qt.resolvedUrl("NewAccountMasAuthDialog.qml")
+        case 1:
+            return Qt.resolvedUrl("NewAccountBskyDialog.qml")
+        default:
+            return null
+        }
+    }
+
+    onAccepted: {
+        switch (serviceCombo.currentIndex) {
+        case 0:
+            acceptDestinationInstance.load()
+            break
+        }
+    }
 
     SilicaFlickable {
         anchors.fill: parent
@@ -37,44 +64,31 @@ Dialog {
                 }
             }
 
-            ButtonLayout {
+            TextField {
+                id: masServerField
                 visible: serviceCombo.currentIndex === 0
-                anchors.left: parent.left
-                anchors.right: parent.right
-
-                Button {
-                    text: qsTr("Open browser to login")
-                    onClicked: mastodonItem.execute("oauth")
-                }
+                label: qsTr("Mastodon server")
+                placeholderText: qsTr("Mastodon server")
             }
 
             TextField {
-                id: blueskyUsernameField
+                id: bskyUsernameField
                 visible: serviceCombo.currentIndex === 1
                 label: qsTr("Username")
                 placeholderText: qsTr("Username")
 
                 EnterKey.iconSource: "image://theme/icon-m-enter-next"
-                EnterKey.onClicked: blueskyPasswordField.focus = true
+                EnterKey.onClicked: bskyPasswordField.focus = true
             }
 
             PasswordField {
                 visible: serviceCombo.currentIndex === 1
-                id: blueskyPasswordField
+                id: bskyPasswordField
                 EnterKey.iconSource: "image://theme/icon-m-enter-accept"
                 EnterKey.onClicked: dialog.accept()
             }
         }
 
         ScrollDecorator {}
-    }
-
-    ExtItem {
-        id: mastodonItem
-        eventBus: EventBus
-        key: {
-            "action": "account",
-            "type": "mastodon"
-        }
     }
 }

@@ -6,8 +6,8 @@ using namespace qmlext::event::json;
 
 namespace {
 
-void publish(JsonEventProcessor::EventPublisher &publisher,
-             const Event &event, const std::string &key, const std::string &value)
+void publish(JsonEventProcessor::EventPublisher &publisher, const Event &event, const std::string &key,
+             const std::string &value)
 {
     publisher(event, QByteArray::fromStdString(key), QByteArray::fromStdString(value));
 }
