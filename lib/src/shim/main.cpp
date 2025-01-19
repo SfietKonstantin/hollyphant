@@ -62,6 +62,10 @@ public:
 
 } // namespace
 
+void initHollyphant()
+{
+}
+
 std::unique_ptr<EventProcessor> createEventProcessor()
 {
     return std::make_unique<LoggingEventProcessor>(std::make_unique<ShimEventProcessor>());

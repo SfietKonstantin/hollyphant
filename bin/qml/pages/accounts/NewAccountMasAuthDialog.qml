@@ -5,7 +5,6 @@ import harbour.hollyphant 1.0
 Dialog {
     id: container
     function load(instance) {
-        console.debug("Load triggered")
         masOpenBrowserItem.execute(instance)
     }
 

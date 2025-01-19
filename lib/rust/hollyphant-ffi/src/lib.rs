@@ -21,9 +21,8 @@ pub mod cxxbridge {
     extern "Rust" {
         type RustEventProcessor;
 
-        fn init();
-
-        fn event_processor_new() -> Box<RustEventProcessor>;
+        fn hollyphant_init();
+        fn hollyphant_event_processor_new() -> Box<RustEventProcessor>;
         fn execute(
             self: &RustEventProcessor,
             publisher: UniquePtr<RustEventPublisher>,
@@ -47,11 +46,11 @@ impl RustEventProcessor {
     }
 }
 
-fn init() {
+fn hollyphant_init() {
     env_logger::init();
 }
 
-fn event_processor_new() -> Box<RustEventProcessor> {
+fn hollyphant_event_processor_new() -> Box<RustEventProcessor> {
     let runtime = Runtime::new().unwrap();
     let hollyphant = Arc::new(Hollyphant::new(Client::new()));
     Box::new(RustEventProcessor(HollyphantDispatch::new(
