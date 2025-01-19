@@ -4,6 +4,7 @@
 #include <hollyphant/statusitem.h>
 #include <qmlext/eventbus.h>
 #include <qmlext/item.h>
+#include <qmlext/listmodel.h>
 
 #ifdef WITH_SAILFISH
 #include <sailfishapp.h>
@@ -20,6 +21,7 @@ int main(int argc, char *argv[])
     hollyphant::initHollyphant();
 
     qmlRegisterType<qmlext::Item>("harbour.hollyphant", 1, 0, "ValueItem");
+    qmlRegisterType<qmlext::ListModel>("harbour.hollyphant", 1, 0, "ValueListModel");
     qmlRegisterType<hollyphant::StatusItem>("harbour.hollyphant", 1, 0, "StatusItem");
     qmlRegisterUncreatableType<qmlext::EventBus>("harbour.hollyphant", 1, 0, "EventBusType",
                                                  "Please use EventBus global variable");

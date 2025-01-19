@@ -7,7 +7,7 @@ namespace hollyphant {
 class StatusItem : public QObject
 {
     Q_OBJECT
-    Q_PROPERTY(qmlext::Item *item READ item WRITE setItem NOTIFY itemChanged)
+    Q_PROPERTY(QObject *item READ item WRITE setItem NOTIFY itemChanged)
     Q_PROPERTY(Status status READ status NOTIFY statusChanged)
     Q_PROPERTY(QVariant value READ value NOTIFY valueChanged)
     Q_PROPERTY(QString message READ message NOTIFY messageChanged)
@@ -22,8 +22,8 @@ public:
     Q_ENUM(Status)
 
     explicit StatusItem(QObject *parent = nullptr);
-    qmlext::Item *item() const;
-    Q_INVOKABLE void setItem(qmlext::Item *item);
+    QObject *item() const;
+    Q_INVOKABLE void setItem(QObject *item);
     Status status() const;
     const QVariant &value() const;
     const QString &message() const;
@@ -37,12 +37,14 @@ signals:
     void detailsChanged();
 
 private:
-    void handleValueChanged();
+    void handleItemValueChanged();
+    void handleListModelValueChanged();
+    void handleValueChanged(const QVariant &value);
     void setStatus(Status status);
     void setValue(QVariant value);
     void setMessage(QString message);
     void setDetails(QString details);
-    qmlext::Item *m_item{nullptr};
+    QObject *m_item{nullptr};
     Status m_status{Unknown};
     QVariant m_value;
     QString m_message;

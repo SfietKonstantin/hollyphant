@@ -16,6 +16,7 @@ pub trait ErrorFormatter {
 
 pub trait EventPublisher {
     fn publish_set(&self, key: &[u8], value: &[u8]);
+    fn publish_append(&self, key: &[u8], value: &[u8]);
 }
 
 pub struct HollyphantDispatch<EF>

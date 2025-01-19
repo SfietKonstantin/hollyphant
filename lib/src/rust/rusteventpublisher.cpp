@@ -19,6 +19,8 @@ RustEventPublisherImpl::RustEventPublisherImpl(JsonEventProcessor::EventPublishe
 {
 }
 
+RustEventPublisher::~RustEventPublisher() = default;
+
 RustEventPublisher::RustEventPublisher(std::unique_ptr<RustEventPublisherImpl> impl)
     : m_impl(std::move(impl))
 {
@@ -29,5 +31,7 @@ void RustEventPublisher::publish_set(const std::string &key, const std::string &
     publish(m_impl->m_eventPublisher, Event(EventType::Set), key, value);
 }
 
-
-RustEventPublisher::~RustEventPublisher() = default;
+void RustEventPublisher::publish_append(const std::string &key, const std::string &value) const
+{
+    publish(m_impl->m_eventPublisher, Event(EventType::Append), key, value);
+}
