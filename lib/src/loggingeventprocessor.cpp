@@ -1,6 +1,9 @@
 #include "loggingeventprocessor.h"
 
-#include <QDebug>
+#include <QLoggingCategory>
+
+Q_DECLARE_LOGGING_CATEGORY(logEventProcessor)
+Q_LOGGING_CATEGORY(logEventProcessor, "hollyphant.event.processor")
 
 using namespace qmlext::event;
 
@@ -18,7 +21,7 @@ public:
 
     void operator()(const Event &event, const QVariant &key, const QVariant &value) const
     {
-        qDebug() << "Sending event" << static_cast<int>(event.type()) << key << value;
+        qCDebug(logEventProcessor) << "Sending event" << static_cast<int>(event.type()) << key << value;
         m_publisher(event, key, value);
     }
 
@@ -35,7 +38,7 @@ LoggingEventProcessor::LoggingEventProcessor(std::unique_ptr<EventProcessor> und
 
 void LoggingEventProcessor::execute(EventPublisher eventPublisher, const QVariant &key, const QVariant &args)
 {
-    qDebug() << "Execute requested" << key << args;
+    qDebug(logEventProcessor) << "Execute requested" << key << args;
     auto loggingPublisher = LoggingEventPublisher(std::move(eventPublisher));
     m_underlying->execute(std::move(loggingPublisher), key, args);
 }
