@@ -24,8 +24,8 @@ Page {
             Label {
                 anchors.left: parent.left
                 anchors.right: parent.right
-                anchors.leftMargin: Theme.paddingMedium
-                anchors.rightMargin: Theme.paddingMedium
+                anchors.leftMargin: Theme.horizontalPageMargin
+                anchors.rightMargin: Theme.horizontalPageMargin
 
                 text: qsTr("Welcome to Hollyphant. Hollyphant is a multi-account Mastodon and Bluesky client. To continue, please register an account")
                 wrapMode: Text.WordWrap
@@ -37,7 +37,7 @@ Page {
             anchors.left: parent.left
             anchors.right: parent.right
             anchors.bottom: parent.bottom
-            anchors.bottomMargin: Theme.paddingMedium
+            anchors.bottomMargin: Theme.paddingLarge
 
             Button {
                 text: qsTr("Add new account")

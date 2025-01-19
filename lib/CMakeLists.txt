@@ -42,6 +42,8 @@ else()
     include_directories(src "${CMAKE_CURRENT_BINARY_DIR}/cxxbridge/include")
 
     set(${PROJECT_NAME}_MAIN_SRCS
+        src/rust/rusterrorformatter.h
+        src/rust/rusterrorformatter.cpp
         src/rust/rusteventpublisher.h
         src/rust/rusteventpublisher.cpp
         src/rust/rusteventpublisherimpl.h
@@ -51,14 +53,19 @@ endif()
 
 add_library(${PROJECT_NAME} STATIC
     include/hollyphant/main.h
-    include/hollyphant/hollyphant.h
+    include/hollyphant/statusitem.h
 
-    src/hollyphant.cpp
+    src/errorformatter.h
+    src/errorformatter.cpp
+    src/loggingeventprocessor.h
+    src/loggingeventprocessor.cpp
+    src/statusitem.cpp
+
     ${${PROJECT_NAME}_MAIN_SRCS}
 )
 
 target_include_directories(${PROJECT_NAME} PUBLIC include)
-target_link_libraries(${PROJECT_NAME} Qt5::Core Qt5::Gui Qt5::Qml qmlext)
+target_link_libraries(${PROJECT_NAME} Qt5::Core Qt5::Gui Qt5::Qml qmlext ${OPENSSL_LIBRARIES})
 
 if (NOT ${USE_SHIM})
     target_link_libraries(${PROJECT_NAME} hollyphant_ffi)

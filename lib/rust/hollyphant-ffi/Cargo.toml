@@ -5,6 +5,11 @@ edition = "2021"
 
 [dependencies]
 cxx = "1.0"
+env_logger = "0.11"
+hollyphant = { path = "../hollyphant" }
+hollyphant-dispatch = { path = "../hollyphant-dispatch" }
+reqwest = "0.12"
+tokio = { version = "1.43", features = ["rt-multi-thread"] }
 
 [build-dependencies]
 copy_dir = "0.1"
