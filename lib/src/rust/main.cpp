@@ -21,7 +21,7 @@ class RustEventProcessorWrapper : public JsonEventProcessor
 {
 public:
     explicit RustEventProcessorWrapper()
-        : m_processor(event_processor_new())
+        : m_processor(hollyphant_event_processor_new())
     {
     }
     void execute(EventPublisher eventPublisher, QByteArray key, QByteArray args) override
@@ -36,6 +36,12 @@ private:
 };
 
 } // namespace
+
+void initHollyphant()
+{
+    hollyphant_init();
+}
+
 
 std::unique_ptr<EventProcessor> createEventProcessor()
 {

@@ -17,6 +17,8 @@ static QObject *createEventBus(QQmlEngine *engine, QJSEngine *jsEngine)
 
 int main(int argc, char *argv[])
 {
+    hollyphant::initHollyphant();
+
     qmlRegisterType<qmlext::Item>("harbour.hollyphant", 1, 0, "ValueItem");
     qmlRegisterType<hollyphant::StatusItem>("harbour.hollyphant", 1, 0, "StatusItem");
     qmlRegisterUncreatableType<qmlext::EventBus>("harbour.hollyphant", 1, 0, "EventBusType",

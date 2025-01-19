@@ -5,6 +5,7 @@
 
 namespace hollyphant {
 
+void initHollyphant();
 std::unique_ptr<qmlext::event::EventProcessor> createEventProcessor();
 
 } // namespace hollyphant

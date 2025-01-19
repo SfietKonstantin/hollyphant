@@ -29,7 +29,7 @@ Dialog {
     onAccepted: {
         switch (serviceCombo.currentIndex) {
         case 0:
-            acceptDestinationInstance.load()
+            acceptDestinationInstance.load(masServerField.text)
             break
         }
     }
