@@ -26,7 +26,6 @@ public:
     }
     void execute(EventPublisher eventPublisher, QByteArray key, QByteArray args) override
     {
-        qDebug() << "Execute requested" << key << args;
         auto rustPublisherImpl = std::make_unique<RustEventPublisherImpl>(eventPublisher);
         m_processor->execute(std::make_unique<RustEventPublisher>(std::move(rustPublisherImpl)), key.toStdString(),
                              args.toStdString());
