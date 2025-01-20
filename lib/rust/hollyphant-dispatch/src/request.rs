@@ -1,4 +1,4 @@
-use log::warn;
+use log::{debug, log_enabled, warn, Level};
 use serde::Deserialize;
 use serde_json::Value;
 
@@ -48,6 +48,11 @@ pub enum RequestNewAccountMastodon {
 }
 
 fn try_deserialize_slice(slice: &[u8], kind: &str) -> Option<Value> {
+    if log_enabled!(Level::Debug) {
+        let slice_str = String::from_utf8_lossy(slice);
+        debug!("Deserializing {kind} {slice_str}")
+    }
+
     match serde_json::from_slice(slice) {
         Ok(value) => Some(value),
         Err(error) => {

@@ -48,6 +48,13 @@ public:
             QTimer::singleShot(500, publisher, &DelayedPublisher::trigger);
             return;
         }
+        if (key == QVariantMap{{"context", "accounts"}, {"action", "list"}}) {
+            eventPublisher(Event(EventType::Set), key, QVariantMap{{"status", "in-progress"}});
+            auto publisher = new DelayedPublisher(std::move(eventPublisher), Event(EventType::Set), key,
+                                                  QVariantMap{{"status", "success"}});
+            QTimer::singleShot(200, publisher, &DelayedPublisher::trigger);
+            return;
+        }
         if (key == QVariantMap{{"context", "new-account"}, {"service", "mastodon"}, {"action", "open-browser"}}) {
             eventPublisher(Event(EventType::Set), key, QVariantMap{{"status", "in-progress"}});
 

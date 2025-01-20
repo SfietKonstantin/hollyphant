@@ -13,8 +13,7 @@ Dialog {
 
     BusyLabel {
         text: "Registering application in Mastodon instance"
-        running: openBrowserStatus.status !== StatusItem.Success
-                 && openBrowserStatus.status !== StatusItem.Error
+        running: openBrowserStatus.status === StatusItem.InProgress
     }
 
     SilicaFlickable {

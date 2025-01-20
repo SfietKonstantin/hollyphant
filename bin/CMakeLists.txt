@@ -54,11 +54,14 @@ add_custom_target(otherfiles SOURCES
     harbour-hollyphant.desktop
 
     qml/harbour-hollyphant.qml
+    qml/MainPage.qml
+    qml/Welcome.qml
+    qml/WelcomePage.qml
+    qml/accounts/AccountsPage.qml
+    qml/accounts/NewAccountBskyDialog.qml
+    qml/accounts/NewAccountDialog.qml
+    qml/accounts/NewAccountMasAuthDialog.qml
     qml/cover/CoverPage.qml
-    qml/pages/WelcomePage.qml
-    qml/pages/accounts/NewAccountBskyDialog.qml
-    qml/pages/accounts/NewAccountDialog.qml
-    qml/pages/accounts/NewAccountMasAuthDialog.qml
 
     ${TsFiles}
 )
