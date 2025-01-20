@@ -26,6 +26,7 @@ Dialog {
                 anchors.right: parent.right
                 anchors.leftMargin: Theme.horizontalPageMargin
                 anchors.rightMargin: Theme.horizontalPageMargin
+                color: Theme.highlightColor
 
                 text: qsTr("Bluesky is not yet supported.")
                 wrapMode: Text.WordWrap

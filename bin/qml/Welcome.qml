@@ -18,6 +18,7 @@ SilicaFlickable {
             anchors.right: parent.right
             anchors.leftMargin: Theme.horizontalPageMargin
             anchors.rightMargin: Theme.horizontalPageMargin
+            color: Theme.highlightColor
 
             text: qsTr("Welcome to Hollyphant. Hollyphant is a multi-account Mastodon and Bluesky client. To continue, please add an account in the accounts settings.")
             wrapMode: Text.WordWrap

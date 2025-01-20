@@ -69,6 +69,8 @@ Dialog {
                 visible: serviceCombo.currentIndex === 0
                 label: qsTr("Mastodon server")
                 placeholderText: qsTr("Mastodon server")
+                EnterKey.iconSource: "image://theme/icon-m-enter-accept"
+                EnterKey.onClicked: container.accept()
             }
 
             TextField {
@@ -82,10 +84,10 @@ Dialog {
             }
 
             PasswordField {
-                visible: serviceCombo.currentIndex === 1
                 id: bskyPasswordField
+                visible: serviceCombo.currentIndex === 1
                 EnterKey.iconSource: "image://theme/icon-m-enter-accept"
-                EnterKey.onClicked: dialog.accept()
+                EnterKey.onClicked: container.accept()
             }
         }
 

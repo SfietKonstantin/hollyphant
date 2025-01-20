@@ -10,7 +10,7 @@ Page {
     }
 
     PageBusyIndicator {
-        running: initialStatusItem.status !== StatusItem.Success
+        running: hasAccountStatusItem.status !== StatusItem.Success
     }
 
     StatusItem {
