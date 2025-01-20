@@ -56,7 +56,6 @@ add_custom_target(otherfiles SOURCES
     qml/harbour-hollyphant.qml
     qml/MainPage.qml
     qml/Welcome.qml
-    qml/WelcomePage.qml
     qml/accounts/AccountsPage.qml
     qml/accounts/NewAccountBskyDialog.qml
     qml/accounts/NewAccountDialog.qml
