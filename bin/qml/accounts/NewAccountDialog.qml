@@ -6,9 +6,10 @@ Dialog {
     canAccept: {
         switch (serviceCombo.currentIndex) {
         case 0:
-            return masServerField.text.length > 0
+            return nameField.text.length > 0 && masInstanceField.text.length > 0
         case 1:
-            return bskyUsernameField.text.length > 0
+            return nameField.text.length > 0
+                    && bskyUsernameField.text.length > 0
                     && bskyPasswordField.text.length > 0
         default:
             return false
@@ -18,7 +19,7 @@ Dialog {
     acceptDestination: {
         switch (serviceCombo.currentIndex) {
         case 0:
-            return Qt.resolvedUrl("NewAccountMasAuthDialog.qml")
+            return newMasAccountDialog
         case 1:
             return Qt.resolvedUrl("NewAccountBskyDialog.qml")
         default:
@@ -29,7 +30,7 @@ Dialog {
     onAccepted: {
         switch (serviceCombo.currentIndex) {
         case 0:
-            acceptDestinationInstance.load(masServerField.text)
+            acceptDestinationInstance.load()
             break
         }
     }
@@ -50,22 +51,41 @@ Dialog {
                 title: qsTr("New account")
             }
 
+            TextField {
+                id: nameField
+                label: qsTr("Name")
+                placeholderText: qsTr("Account name")
+                focus: true
+
+                EnterKey.iconSource: "image://theme/icon-m-enter-next"
+                EnterKey.onClicked: {
+                    switch (serviceCombo.currentIndex) {
+                    case 0:
+                        masInstanceField.focus = true
+                        break
+                    case 1:
+                        bskyUsernameField.focus = true
+                        break
+                    }
+                }
+            }
+
             ComboBox {
                 id: serviceCombo
                 label: qsTr("Service")
 
                 menu: ContextMenu {
                     MenuItem {
-                        text: "Mastodon"
+                        text: qsTr("Mastodon")
                     }
                     MenuItem {
-                        text: "Bluesky"
+                        text: qsTr("Bluesky")
                     }
                 }
             }
 
             TextField {
-                id: masServerField
+                id: masInstanceField
                 visible: serviceCombo.currentIndex === 0
                 label: qsTr("Mastodon server")
                 placeholderText: qsTr("Mastodon server")
@@ -92,5 +112,13 @@ Dialog {
         }
 
         ScrollDecorator {}
+    }
+
+    Component {
+        id: newMasAccountDialog
+        NewAccountMasAuthDialog {
+            name: nameField.text
+            instance: masInstanceField.text
+        }
     }
 }

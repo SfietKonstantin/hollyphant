@@ -7,7 +7,7 @@ use serde_json::Value;
 #[serde(tag = "context")]
 pub enum Request {
     Init,
-    NewAccount(RequestNewAccount),
+    NewAccount(NewAccount),
 }
 
 impl Request {
@@ -36,15 +36,30 @@ impl Request {
 #[derive(Debug, Deserialize, Eq, PartialEq)]
 #[serde(rename_all = "kebab-case")]
 #[serde(tag = "service")]
-pub enum RequestNewAccount {
-    Mastodon(RequestNewAccountMastodon),
+pub enum NewAccount {
+    Mastodon(MastodonNewAccount),
 }
 
 #[derive(Debug, Deserialize, Eq, PartialEq)]
 #[serde(rename_all = "kebab-case")]
 #[serde(tag = "action")]
-pub enum RequestNewAccountMastodon {
-    OpenBrowser { args: String },
+pub enum MastodonNewAccount {
+    Prelogin { args: MastodonPreloginArgs },
+    Login { args: MastodonLoginArgs },
+}
+
+#[derive(Debug, Deserialize, Eq, PartialEq)]
+#[serde(rename_all = "kebab-case")]
+pub struct MastodonPreloginArgs {
+    pub name: String,
+    pub instance: String,
+}
+
+#[derive(Debug, Deserialize, Eq, PartialEq)]
+#[serde(rename_all = "kebab-case")]
+pub struct MastodonLoginArgs {
+    pub name: String,
+    pub code: String,
 }
 
 fn try_deserialize_slice(slice: &[u8], kind: &str) -> Option<Value> {
@@ -79,15 +94,39 @@ mod tests {
             let key = json!({
                 "context": "new-account",
                 "service": "mastodon",
-                "action": "open-browser",
-                "args": "https://mastodon.social"
+                "action": "prelogin",
+                "args": {
+                    "name": "test",
+                    "instance": "https://mastodon.social"
+                }
             });
             let key: Request = from_value(key).unwrap();
-            let expected = Request::NewAccount(RequestNewAccount::Mastodon(
-                RequestNewAccountMastodon::OpenBrowser {
-                    args: "https://mastodon.social".to_string(),
+            let expected =
+                Request::NewAccount(NewAccount::Mastodon(MastodonNewAccount::Prelogin {
+                    args: MastodonPreloginArgs {
+                        name: "test".to_string(),
+                        instance: "https://mastodon.social".to_string(),
+                    },
+                }));
+            assert_eq!(key, expected);
+        }
+        {
+            let key = json!({
+                "context": "new-account",
+                "service": "mastodon",
+                "action": "login",
+                "args": {
+                    "name": "test",
+                    "code":"123"
+                }
+            });
+            let key: Request = from_value(key).unwrap();
+            let expected = Request::NewAccount(NewAccount::Mastodon(MastodonNewAccount::Login {
+                args: MastodonLoginArgs {
+                    name: "test".to_string(),
+                    code: "123".to_string(),
                 },
-            ));
+            }));
             assert_eq!(key, expected);
         }
     }

@@ -17,16 +17,23 @@ impl<'a> MastodonAuthApi<'a> {
         let response = response.error_for_status()?;
         response.json().await
     }
+
+    pub async fn get_token(&self, body: MasTokenRequest) -> Result<MasToken> {
+        let url = format!("{}/oauth/token", self.instance);
+        let response = self.client.post(url).json(&body).send().await?;
+        let response = response.error_for_status()?;
+        response.json().await
+    }
 }
 
 #[derive(Debug, Serialize)]
 pub struct MasApplicationRequest {
     client_name: String,
-    redirect_uris: String,
+    redirect_uris: Vec<String>,
 }
 
 impl MasApplicationRequest {
-    pub fn new(client_name: String, redirect_uris: String) -> Self {
+    pub fn new(client_name: String, redirect_uris: Vec<String>) -> Self {
         MasApplicationRequest {
             client_name,
             redirect_uris,
@@ -34,10 +41,40 @@ impl MasApplicationRequest {
     }
 }
 
+#[derive(Debug, Serialize)]
+pub struct MasTokenRequest {
+    grant_type: String,
+    code: String,
+    client_id: String,
+    client_secret: String,
+    redirect_uri: String,
+}
+impl MasTokenRequest {
+    pub fn with_code(
+        code: String,
+        client_id: String,
+        client_secret: String,
+        redirect_uri: String,
+    ) -> Self {
+        MasTokenRequest {
+            grant_type: "authorization_code".to_string(),
+            code,
+            client_id,
+            client_secret,
+            redirect_uri,
+        }
+    }
+}
+
 #[non_exhaustive]
 #[derive(Debug, Deserialize)]
 pub struct MasApplication {
-    pub vapid_key: String,
     pub client_id: String,
     pub client_secret: String,
+}
+
+#[non_exhaustive]
+#[derive(Debug, Deserialize)]
+pub struct MasToken {
+    pub access_token: String,
 }

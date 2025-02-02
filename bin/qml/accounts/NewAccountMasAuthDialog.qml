@@ -1,25 +1,35 @@
 import QtQuick 2.0
 import Sailfish.Silica 1.0
 import harbour.hollyphant 1.0
+import "../components"
 
 Dialog {
     id: container
-    function load(instance) {
-        masOpenBrowserItem.execute(instance)
+    property string name
+    property string instance
+
+    function load() {
+        var args = {
+            "name": nameField.text,
+            "instance": masInstanceField.text
+        }
+        preLoginItem.execute(args)
     }
 
-    canAccept: openBrowserStatus.status === StatusItem.Success
+    canAccept: preLoginStatus.status === StatusItem.Success
                && codeField.text.length > 0
+    acceptDestination: finalizationPage
+    onAccepted: acceptDestinationInstance.load()
 
     BusyLabel {
         text: "Registering application in Mastodon instance"
-        running: openBrowserStatus.status === StatusItem.InProgress
+        running: preLoginStatus.status === StatusItem.InProgress
     }
 
     SilicaFlickable {
         anchors.fill: parent
         contentHeight: column.height
-        visible: openBrowserStatus.status === StatusItem.Success
+        visible: preLoginStatus.status !== StatusItem.InProgress
 
         Column {
             id: column
@@ -30,23 +40,41 @@ Dialog {
             DialogHeader {
                 id: header
                 dialog: container
-                title: qsTr("New account")
+                title: qsTr("New Mastodon account")
             }
 
-            Label {
+            StatusDisplay {
                 anchors.left: parent.left
                 anchors.right: parent.right
-                anchors.leftMargin: Theme.horizontalPageMargin
-                anchors.rightMargin: Theme.horizontalPageMargin
+                statusItem: preLoginStatus
 
-                text: qsTr("Please enter the code you have received from Mastodon in the field below")
-                wrapMode: Text.WordWrap
-            }
+                Column {
+                    anchors.left: parent.left
+                    anchors.right: parent.right
+                    spacing: Theme.paddingMedium
 
-            TextField {
-                id: codeField
-                label: qsTr("Login code")
-                placeholderText: qsTr("Login code")
+                    Label {
+                        anchors.left: parent.left
+                        anchors.right: parent.right
+                        anchors.leftMargin: Theme.horizontalPageMargin
+                        anchors.rightMargin: Theme.horizontalPageMargin
+                        color: Theme.highlightColor
+
+                        text: qsTr("Please enter the code you have received from Mastodon in the field below")
+                        wrapMode: Text.WordWrap
+                    }
+
+                    TextField {
+                        id: codeField
+                        label: qsTr("Login code")
+                        placeholderText: qsTr("Login code")
+                        inputMethodHints: Qt.ImhDigitsOnly
+                        focus: true
+
+                        EnterKey.iconSource: "image://theme/icon-m-enter-accept"
+                        EnterKey.onClicked: container.accept()
+                    }
+                }
             }
         }
 
@@ -54,18 +82,23 @@ Dialog {
     }
 
     StatusItem {
-        id: openBrowserStatus
+        id: preLoginStatus
         item: ValueItem {
-            id: masOpenBrowserItem
+            id: preLoginItem
             eventBus: EventBus
             key: {
                 "context": "new-account",
                 "service": "mastodon",
-                "action": "open-browser"
+                "action": "prelogin"
             }
         }
         onValueChanged: {
             Qt.openUrlExternally(value)
         }
+    }
+
+    Component {
+        id: finalizationPage
+        NewAccountMasAuthFinalizationPage {}
     }
 }

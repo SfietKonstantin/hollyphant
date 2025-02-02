@@ -1,7 +1,7 @@
 mod request;
 mod response;
 
-use crate::request::{Request, RequestNewAccount, RequestNewAccountMastodon};
+use crate::request::{MastodonNewAccount, NewAccount, Request};
 use crate::response::{Event, Response, Status};
 use hollyphant::Hollyphant;
 use log::warn;
@@ -9,9 +9,12 @@ use serde::Serialize;
 use std::marker::PhantomData;
 use std::sync::Arc;
 use tokio::runtime::Runtime;
+use tokio::sync::Mutex;
 
 pub trait ErrorFormatter {
+    fn format_error_unexpected() -> String;
     fn format_error_mas_application_register(instance: &str) -> String;
+    fn format_error_database() -> String;
 }
 
 pub trait EventPublisher {
@@ -24,7 +27,7 @@ where
     EF: ErrorFormatter,
 {
     runtime: Runtime,
-    hollyphant: Arc<Hollyphant>,
+    hollyphant: Arc<Mutex<Hollyphant>>,
     phantom: PhantomData<EF>,
 }
 
@@ -32,7 +35,7 @@ impl<EF> HollyphantDispatch<EF>
 where
     EF: ErrorFormatter,
 {
-    pub fn new(runtime: Runtime, hollyphant: Arc<Hollyphant>) -> Self {
+    pub fn new(runtime: Runtime, hollyphant: Arc<Mutex<Hollyphant>>) -> Self {
         Self {
             runtime,
             hollyphant,
@@ -49,17 +52,20 @@ where
             publish_start(&publisher, &key);
             let hollyphant = self.hollyphant.clone();
             self.runtime.spawn(async move {
-                let event = Self::dispatch(&hollyphant, request).await;
-                publish_event(publisher, key, event);
+                let event = Self::dispatch(hollyphant, request).await;
+                publish_events(publisher, key, event);
             });
         }
     }
 
-    async fn dispatch(hollyphant: &Hollyphant, request: Request) -> Event {
+    async fn dispatch(hollyphant: Arc<Mutex<Hollyphant>>, request: Request) -> Vec<Event> {
         match request {
             Request::Init => {
+                let hollyphant = hollyphant.lock().await;
                 let initial_state = hollyphant.initial_state();
-                Event::Set(Status::success(Response::InitialState(initial_state)))
+                vec![Event::Set(Status::success(Response::InitialState(
+                    initial_state,
+                )))]
             }
             Request::NewAccount(new_account) => {
                 Self::dispatch_new_account(hollyphant, new_account).await
@@ -67,12 +73,26 @@ where
         }
     }
 
-    async fn dispatch_new_account(hollyphant: &Hollyphant, request: RequestNewAccount) -> Event {
+    async fn dispatch_new_account(
+        hollyphant: Arc<Mutex<Hollyphant>>,
+        request: NewAccount,
+    ) -> Vec<Event> {
+        let mut hollyphant = hollyphant.lock().await;
         match request {
-            RequestNewAccount::Mastodon(request) => match request {
-                RequestNewAccountMastodon::OpenBrowser { args } => {
-                    let result = hollyphant.mas_pre_login(&args).await.map(Response::String);
-                    Event::Set(Status::from_result::<EF>(result))
+            NewAccount::Mastodon(request) => match request {
+                MastodonNewAccount::Prelogin { args } => {
+                    let result = hollyphant
+                        .mas_pre_login(args.name, args.instance)
+                        .await
+                        .map(Response::MasOAuthUrl);
+                    vec![Event::Set(Status::from_result::<EF>(result))]
+                }
+                MastodonNewAccount::Login { args } => {
+                    let result = hollyphant
+                        .mas_login(args.name, args.code)
+                        .await
+                        .map(|_| Response::AccountCreated());
+                    vec![Event::Set(Status::from_result::<EF>(result))]
                 }
             },
         }
@@ -88,7 +108,16 @@ where
     });
 }
 
-fn publish_event<EP>(publisher: EP, key: Vec<u8>, event: Event)
+fn publish_events<EP>(publisher: EP, key: Vec<u8>, events: Vec<Event>)
+where
+    EP: EventPublisher,
+{
+    for event in events {
+        publish_event(&publisher, &key, event)
+    }
+}
+
+fn publish_event<EP>(publisher: &EP, key: &[u8], event: Event)
 where
     EP: EventPublisher,
 {

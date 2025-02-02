@@ -3,7 +3,7 @@ import Sailfish.Silica 1.0
 import harbour.hollyphant 1.0
 
 Page {
-    id: container
+    id: accountsPage
 
     SilicaListView {
         anchors.fill: parent
@@ -20,6 +20,20 @@ Page {
             Component.onCompleted: execute()
         }
 
+        delegate: ListItem {
+            contentHeight: Theme.itemSizeMedium
+
+            Label {
+                anchors.left: parent.left
+                anchors.right: parent.right
+                anchors.leftMargin: Theme.horizontalPageMargin
+                anchors.rightMargin: Theme.horizontalPageMargin
+                anchors.verticalCenter: parent.verticalCenter
+                text: model.value.name
+                elide: Text.ElideRight
+            }
+        }
+
         ViewPlaceholder {
             enabled: modelStatusItem.status !== StatusItem.InProgress
                      && listModel.count === 0
@@ -32,7 +46,7 @@ Page {
             MenuItem {
                 text: qsTr("Add account")
                 onClicked: {
-                    pageStack.push(Qt.resolvedUrl("NewAccountDialog.qml"))
+                    pageStack.push(newAccountDialog)
                 }
             }
         }
@@ -41,5 +55,11 @@ Page {
     StatusItem {
         id: modelStatusItem
         item: listModel
+    }
+
+    Component {
+        id: newAccountDialog
+
+        NewAccountDialog {}
     }
 }

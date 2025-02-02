@@ -4,6 +4,7 @@
 #include "rusteventpublisher.h"
 #include "rusteventpublisherimpl.h"
 #include <QDebug>
+#include <QStandardPaths>
 #include <hollyphant-ffi/src/lib.rs.h>
 #include <qmlext/event/json/jsoneventadapter.h>
 #include <qmlext/event/json/jsoneventprocessor.h>
@@ -17,11 +18,17 @@ namespace hollyphant {
 
 namespace {
 
+String findDatabasePath()
+{
+    auto dbPath = QStandardPaths::locate(QStandardPaths::AppDataLocation, "hollyphant.db").toUtf8();
+    return String(dbPath.data(), dbPath.size());
+}
+
 class RustEventProcessorWrapper : public JsonEventProcessor
 {
 public:
     explicit RustEventProcessorWrapper()
-        : m_processor(hollyphant_event_processor_new())
+        : m_processor(hollyphant_event_processor_new(findDatabasePath()))
     {
     }
     void execute(EventPublisher eventPublisher, QByteArray key, QByteArray args) override
