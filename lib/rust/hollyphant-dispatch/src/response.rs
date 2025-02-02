@@ -40,8 +40,22 @@ impl Status {
                 warn!("{}", error);
 
                 match error {
+                    Error::Unexpected(error) => {
+                        let message = EF::format_error_unexpected();
+                        Status::Error(FormattedError {
+                            message,
+                            details: error,
+                        })
+                    }
                     Error::MasApplicationRegister(instance, error) => {
                         let message = EF::format_error_mas_application_register(&instance);
+                        Status::Error(FormattedError {
+                            message,
+                            details: error.to_string(),
+                        })
+                    }
+                    Error::DatabaseError(error) => {
+                        let message = EF::format_error_database();
                         Status::Error(FormattedError {
                             message,
                             details: error.to_string(),
@@ -57,18 +71,13 @@ impl Status {
 #[serde(untagged)]
 pub enum Response {
     InitialState(InitialState),
-    String(String),
+    MasOAuthUrl(String),
+    AccountCreated(),
 }
 
 impl From<InitialState> for Response {
     fn from(value: InitialState) -> Self {
         Response::InitialState(value)
-    }
-}
-
-impl From<String> for Response {
-    fn from(value: String) -> Self {
-        Response::String(value)
     }
 }
 
@@ -93,6 +102,15 @@ mod tests {
             assert_eq!(status, expected);
         }
         {
+            let status = Status::success(Response::AccountCreated());
+            let status: Value = to_value(status).unwrap();
+            let expected = json!({
+                "status": "success",
+                "value": null
+            });
+            assert_eq!(status, expected);
+        }
+        {
             let status = Status::success(Response::InitialState(InitialState::NoAccount));
             let status: Value = to_value(status).unwrap();
             let expected = json!({
@@ -102,11 +120,11 @@ mod tests {
             assert_eq!(status, expected);
         }
         {
-            let status = Status::success(Response::String("string-value".to_string()));
+            let status = Status::success(Response::MasOAuthUrl("http://localhost".to_string()));
             let status: Value = to_value(status).unwrap();
             let expected = json!({
                 "status": "success",
-                "value": "string-value"
+                "value": "http://localhost"
             });
             assert_eq!(status, expected);
         }

@@ -1,9 +1,10 @@
 use cxx::{let_cxx_string, CxxString, UniquePtr};
-use hollyphant::Hollyphant;
+use hollyphant::{new_database, Hollyphant};
 use hollyphant_dispatch::{ErrorFormatter, EventPublisher, HollyphantDispatch};
 use reqwest::Client;
 use std::sync::Arc;
 use tokio::runtime::Runtime;
+use tokio::sync::Mutex;
 
 #[cxx::bridge]
 pub mod cxxbridge {
@@ -16,14 +17,16 @@ pub mod cxxbridge {
         fn publish_append(self: &RustEventPublisher, key: &CxxString, value: &CxxString);
 
         // Error formatting
+        fn format_error_unexpected() -> String;
         fn format_error_mas_application_register(instance: &str) -> String;
+        fn format_error_database() -> String;
     }
 
     extern "Rust" {
         type RustEventProcessor;
 
         fn hollyphant_init();
-        fn hollyphant_event_processor_new() -> Box<RustEventProcessor>;
+        fn hollyphant_event_processor_new(database_url: String) -> Box<RustEventProcessor>;
         fn execute(
             self: &RustEventProcessor,
             publisher: UniquePtr<RustEventPublisher>,
@@ -51,9 +54,11 @@ fn hollyphant_init() {
     env_logger::init();
 }
 
-fn hollyphant_event_processor_new() -> Box<RustEventProcessor> {
+fn hollyphant_event_processor_new(database_url: String) -> Box<RustEventProcessor> {
+    let db_connection = new_database(&database_url).unwrap();
     let runtime = Runtime::new().unwrap();
-    let hollyphant = Arc::new(Hollyphant::new(Client::new()));
+    let hollyphant = Hollyphant::new(db_connection, Client::new());
+    let hollyphant = Arc::new(Mutex::new(hollyphant));
     Box::new(RustEventProcessor(HollyphantDispatch::new(
         runtime, hollyphant,
     )))
@@ -62,8 +67,16 @@ fn hollyphant_event_processor_new() -> Box<RustEventProcessor> {
 struct CxxErrorFormatter;
 
 impl ErrorFormatter for CxxErrorFormatter {
+    fn format_error_unexpected() -> String {
+        cxxbridge::format_error_unexpected()
+    }
+
     fn format_error_mas_application_register(instance: &str) -> String {
         cxxbridge::format_error_mas_application_register(instance)
+    }
+
+    fn format_error_database() -> String {
+        cxxbridge::format_error_database()
     }
 }
 

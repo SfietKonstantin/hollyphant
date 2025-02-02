@@ -24,6 +24,7 @@ BuildRequires:  pkgconfig(Qt5Qml)
 BuildRequires:  pkgconfig(Qt5Quick)
 BuildRequires:  pkgconfig(Qt5Test)
 BuildRequires:  pkgconfig(openssl)
+BuildRequires:  pkgconfig(sqlite3)
 BuildRequires:  cmake
 BuildRequires:  rust
 BuildRequires:  rust-std-static

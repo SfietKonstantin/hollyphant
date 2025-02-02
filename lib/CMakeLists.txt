@@ -6,6 +6,7 @@ include(FindPkgConfig)
 
 find_package (Qt5 COMPONENTS Core Gui Qml REQUIRED)
 find_package(OpenSSL REQUIRED)
+find_package(SQLite3 REQUIRED)
 pkg_search_module(SAILFISH sailfishapp)
 
 set(CMAKE_AUTOMOC ON)
@@ -68,5 +69,5 @@ target_include_directories(${PROJECT_NAME} PUBLIC include)
 target_link_libraries(${PROJECT_NAME} Qt5::Core Qt5::Gui Qt5::Qml qmlext ${OPENSSL_LIBRARIES})
 
 if (NOT ${USE_SHIM})
-    target_link_libraries(${PROJECT_NAME} hollyphant_ffi)
+    target_link_libraries(${PROJECT_NAME} hollyphant_ffi ${SQLite3_LIBRARIES})
 endif()

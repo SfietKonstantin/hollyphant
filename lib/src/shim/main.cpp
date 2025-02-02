@@ -37,31 +37,77 @@ private:
 
 namespace {
 
+void publishSet(const EventProcessor::EventPublisher &eventPublisher, const QVariant &key, const QVariant &value)
+{
+    eventPublisher(Event(EventType::Set), key, value);
+}
+
+void delayPublish(const EventProcessor::EventPublisher &eventPublisher, Event event, QVariant key, QVariant value)
+{
+    auto publisher = new DelayedPublisher(eventPublisher, std::move(event), std::move(key), std::move(value));
+    QTimer::singleShot(1000, publisher, &DelayedPublisher::trigger);
+}
+
+void delayPublishSet(const EventProcessor::EventPublisher &eventPublisher, QVariant key, QVariant value)
+{
+    delayPublish(eventPublisher, Event(EventType::Set), std::move(key), std::move(value));
+}
+
+void delayPublishAppend(const EventProcessor::EventPublisher &eventPublisher, QVariant key, QVariant value)
+{
+    delayPublish(eventPublisher, Event(EventType::Append), std::move(key), std::move(value));
+}
+
+void publishInProgress(const EventProcessor::EventPublisher &eventPublisher, const QVariant &key)
+{
+    publishSet(eventPublisher, key, QVariantMap{{"status", "in-progress"}});
+}
+
+void delayPublishTestError(const EventProcessor::EventPublisher &eventPublisher, const QVariant &key)
+{
+    delayPublish(eventPublisher, Event(EventType::Set), key,
+                 QVariantMap{{"status", "error"},
+                             {"message", "This is a test error"},
+                             {"details", "This is a long test error description.\nSome error happened."}});
+}
+
 class ShimEventProcessor : public EventProcessor
 {
 public:
     void execute(EventPublisher eventPublisher, const QVariant &key, const QVariant &args) override
     {
-        if (key == QVariantMap{{"context", "init"}}) {
-            auto publisher = new DelayedPublisher(std::move(eventPublisher), Event(EventType::Set), key,
-                                                  QVariantMap{{"status", "success"}, {"value", "no-account"}});
-            QTimer::singleShot(500, publisher, &DelayedPublisher::trigger);
-            return;
-        }
-        if (key == QVariantMap{{"context", "accounts"}, {"action", "list"}}) {
-            eventPublisher(Event(EventType::Set), key, QVariantMap{{"status", "in-progress"}});
-            auto publisher = new DelayedPublisher(std::move(eventPublisher), Event(EventType::Set), key,
-                                                  QVariantMap{{"status", "success"}});
-            QTimer::singleShot(200, publisher, &DelayedPublisher::trigger);
-            return;
-        }
-        if (key == QVariantMap{{"context", "new-account"}, {"service", "mastodon"}, {"action", "open-browser"}}) {
-            eventPublisher(Event(EventType::Set), key, QVariantMap{{"status", "in-progress"}});
+        auto accountsKey = QVariantMap{{"context", "accounts"}, {"action", "list"}};
 
-            auto publisher =
-                    new DelayedPublisher(std::move(eventPublisher), Event(EventType::Set), key,
-                                         QVariantMap{{"status", "success"}, {"value", "https://mastodon.social"}});
-            QTimer::singleShot(1000, publisher, &DelayedPublisher::trigger);
+        if (key == "test") {
+            delayPublishTestError(eventPublisher, key);
+            return;
+        }
+        if (key == QVariantMap{{"context", "init"}}) {
+            delayPublishSet(eventPublisher, key, QVariantMap{{"status", "success"}, {"value", "no-account"}});
+            return;
+        }
+        if (key == accountsKey) {
+            publishInProgress(eventPublisher, key);
+            delayPublishSet(eventPublisher, key, QVariantMap{{"status", "success"}});
+            return;
+        }
+        if (key == QVariantMap{{"context", "new-account"}, {"service", "mastodon"}, {"action", "prelogin"}}) {
+            publishInProgress(eventPublisher, key);
+
+            delayPublishSet(
+                    eventPublisher, key,
+                    QVariantMap{{"status", "success"}, {"value", QVariantMap{{"url", "https://mastodon.social"}}}});
+            return;
+        }
+        if (key == QVariantMap{{"context", "new-account"}, {"service", "mastodon"}, {"action", "login"}}) {
+            publishInProgress(eventPublisher, key);
+
+            delayPublishSet(eventPublisher, key, QVariantMap{{"status", "success"}, {"value", QVariant()}});
+
+            auto newAccount = QVariantMap{{"kind", "mastodon"},
+                                          {"name", args.toMap()["name"]},
+                                          {"instance", "https://mastodon.social"}};
+            delayPublishAppend(eventPublisher, accountsKey, newAccount);
             return;
         }
     }

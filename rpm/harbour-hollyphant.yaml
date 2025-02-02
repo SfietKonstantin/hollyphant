@@ -19,6 +19,7 @@ PkgConfigBR:
   - Qt5Quick
   - Qt5Test
   - openssl
+  - sqlite3
 
 PkgBR:
   - cmake
