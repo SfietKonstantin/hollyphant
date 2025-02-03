@@ -60,7 +60,7 @@ add_custom_target(otherfiles SOURCES
     qml/accounts/NewAccountBskyDialog.qml
     qml/accounts/NewAccountDialog.qml
     qml/accounts/NewAccountMasAuthDialog.qml
-    qml/accounts/NewAccountMasAuthFinalizationPage.qml
+    qml/accounts/NewAccountMasAuthFinalizationDialog.qml
     qml/components/ErrorItem.qml
     qml/components/StatusDisplay.qml
     qml/cover/CoverPage.qml
