@@ -68,7 +68,6 @@ Dialog {
                         id: codeField
                         label: qsTr("Login code")
                         placeholderText: qsTr("Login code")
-                        inputMethodHints: Qt.ImhDigitsOnly
                         focus: true
 
                         EnterKey.iconSource: "image://theme/icon-m-enter-accept"
@@ -99,6 +98,6 @@ Dialog {
 
     Component {
         id: finalizationPage
-        NewAccountMasAuthFinalizationPage {}
+        NewAccountMasAuthFinalizationDialog {}
     }
 }

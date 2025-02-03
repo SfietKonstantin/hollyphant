@@ -3,7 +3,7 @@ import Sailfish.Silica 1.0
 import harbour.hollyphant 1.0
 import "../components"
 
-Page {
+Dialog {
     id: container
     function load() {
         var args = {
@@ -12,6 +12,20 @@ Page {
         }
         loginItem.execute(args)
     }
+
+    function _handleAccept() {
+        if (loginStatus.status === StatusItem.Success
+                && status == DialogStatus.Opened) {
+            canAccept = true
+            accept()
+        }
+    }
+
+    canAccept: false
+    acceptDestination: accountsPage
+    acceptDestinationAction: PageStackAction.Pop
+
+    onStatusChanged: _handleAccept()
 
     BusyLabel {
         text: "Logging into Mastodon"
@@ -29,7 +43,7 @@ Page {
             anchors.right: parent.right
             spacing: Theme.paddingMedium
 
-            PageHeader {
+            DialogHeader {
                 title: qsTr("New Mastodon account")
             }
 
@@ -41,6 +55,7 @@ Page {
 
     StatusItem {
         id: loginStatus
+        onStatusChanged: container._handleAccept()
         item: ValueItem {
             id: loginItem
             eventBus: EventBus
@@ -48,11 +63,6 @@ Page {
                 "context": "new-account",
                 "service": "mastodon",
                 "action": "login"
-            }
-        }
-        onStatusChanged: {
-            if (status === StatusItem.Success) {
-                pageStack.pop(accountsPage)
             }
         }
     }

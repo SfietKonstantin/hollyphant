@@ -10,8 +10,8 @@ Column {
     spacing: Theme.paddingLarge
 
     Icon {
-        anchors.centerIn: parent
-        source: "image://icon-l-attention"
+        anchors.horizontalCenter: parent.horizontalCenter
+        source: "image://theme/icon-l-attention"
     }
 
     Label {
