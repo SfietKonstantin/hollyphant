@@ -1,8 +1,8 @@
 use crate::ErrorFormatter;
 use hollyphant::errors::Error;
 use hollyphant::InitialState;
-use log::warn;
 use serde::Serialize;
+use tracing::{event, Level};
 
 #[derive(Debug, Eq, PartialEq)]
 pub enum Event {
@@ -37,7 +37,7 @@ impl Status {
         match result {
             Ok(value) => Status::success(value),
             Err(error) => {
-                warn!("{}", error);
+                event!(Level::WARN, error = ?error);
 
                 match error {
                     Error::Unexpected(error) => {

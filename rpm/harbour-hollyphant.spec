@@ -43,6 +43,17 @@ A Mastodon and Bluesky client with many features
 
 %build
 # >> build pre
+# Move everything to install phase
+# << build pre
+
+
+
+# >> build post
+# << build post
+
+%install
+rm -rf %{buildroot}
+# >> install pre
 %ifarch %arm32
 %define SB2_TARGET armv7-unknown-linux-gnueabihf
 %endif
@@ -68,21 +79,8 @@ export AR_aarch64_unknown_linux_gnu=aarch64-meego-linux-gnu-ar
 
 export CARGO_BUILD_TARGET=%SB2_TARGET
 
-%cmake -DCMAKE_BUILD_TYPE=Release -DRust_CARGO_TARGET=%SB2_TARGET .
+%cmake -DCMAKE_BUILD_TYPE=Debug -DRust_CARGO_TARGET=%SB2_TARGET .
 make %{?_smp_mflags}
-# << build pre
-
-
-
-# >> build post
-# << build post
-
-%install
-rm -rf %{buildroot}
-# >> install pre
-%ifnarch %ix86
-export CARGO_TARGET_I686_UNKNOWN_LINUX_GNU_LINKER=host-gcc
-%endif
 
 %make_install
 # << install pre
