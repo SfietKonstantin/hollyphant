@@ -20,7 +20,7 @@ namespace {
 
 String findDatabasePath()
 {
-    auto dbPath = QStandardPaths::locate(QStandardPaths::AppDataLocation, "hollyphant.db").toUtf8();
+    auto dbPath = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation).append("/hollyphant.db").toUtf8();
     return String(dbPath.data(), dbPath.size());
 }
 
