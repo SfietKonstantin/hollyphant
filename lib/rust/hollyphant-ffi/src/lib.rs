@@ -5,6 +5,7 @@ use reqwest::Client;
 use std::sync::Arc;
 use tokio::runtime::Runtime;
 use tokio::sync::Mutex;
+use tracing::{event, instrument, Level};
 
 #[cxx::bridge]
 pub mod cxxbridge {
@@ -51,10 +52,14 @@ impl RustEventProcessor {
 }
 
 fn hollyphant_init() {
-    env_logger::init();
+    if let Err(err) = tracing_subscriber::fmt::try_init() {
+        eprintln!("Could not initialize tracing_subscriber: {}", err);
+    }
 }
 
+#[instrument]
 fn hollyphant_event_processor_new(database_url: String) -> Box<RustEventProcessor> {
+    event!(Level::DEBUG, "New event processor");
     let db_connection = new_database(&database_url).unwrap();
     let runtime = Runtime::new().unwrap();
     let hollyphant = Hollyphant::new(db_connection, Client::new());

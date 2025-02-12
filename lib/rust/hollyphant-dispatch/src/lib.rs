@@ -4,12 +4,12 @@ mod response;
 use crate::request::{MastodonNewAccount, NewAccount, Request};
 use crate::response::{Event, Response, Status};
 use hollyphant::Hollyphant;
-use log::warn;
 use serde::Serialize;
 use std::marker::PhantomData;
 use std::sync::Arc;
 use tokio::runtime::Runtime;
 use tokio::sync::Mutex;
+use tracing::{event, instrument, Level};
 
 pub trait ErrorFormatter {
     fn format_error_unexpected() -> String;
@@ -43,6 +43,7 @@ where
         }
     }
 
+    #[instrument(skip_all)]
     pub fn execute<EP>(&self, publisher: EP, key: &[u8], args: &[u8])
     where
         EP: EventPublisher + Send + Sync + 'static,
@@ -58,6 +59,7 @@ where
         }
     }
 
+    #[instrument(skip(hollyphant))]
     async fn dispatch(hollyphant: Arc<Mutex<Hollyphant>>, request: Request) -> Vec<Event> {
         match request {
             Request::Init => {
@@ -123,7 +125,7 @@ where
 {
     match event {
         Event::Set(status) => {
-            serialize_and_consume(status, |value| publisher.publish_set(&key, &value))
+            serialize_and_consume(status, |value| publisher.publish_set(key, &value))
         }
     }
 }
@@ -136,7 +138,7 @@ where
     match serde_json::to_vec(&value) {
         Ok(value) => f(value),
         Err(error) => {
-            warn!("Could not serialize response: {error}");
+            event!(Level::WARN, error = ?error, "Could not serialize response");
         }
     }
 }

@@ -3,8 +3,8 @@ use crate::errors::{Error, Result};
 use crate::rest::mastodon::{MasApplicationRequest, MasTokenRequest, MastodonAuthApi};
 use crate::Hollyphant;
 use diesel::RunQueryDsl;
-use log::warn;
 use std::collections::HashMap;
+use tracing::{event, Level};
 
 const REDIRECT_URI: &str = "urn:ietf:wg:oauth:2.0:oob";
 
@@ -36,7 +36,7 @@ impl Hollyphant {
 
     pub async fn mas_login(&mut self, name: String, code: String) -> Result<()> {
         let account = self.mas_account_cache.cache.get(&name).ok_or_else(|| {
-            warn!("Account not found for {name}");
+            event!(Level::WARN, account = name, "Account not found");
             Error::Unexpected(format!("Account not found for {name}"))
         })?;
 

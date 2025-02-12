@@ -1,6 +1,6 @@
-use log::{debug, log_enabled, warn, Level};
 use serde::Deserialize;
 use serde_json::Value;
+use tracing::{event, event_enabled, Level};
 
 #[derive(Debug, Deserialize, Eq, PartialEq)]
 #[serde(rename_all = "kebab-case")]
@@ -26,7 +26,7 @@ impl Request {
         match serde_json::from_value(input) {
             Ok(request) => Some(request),
             Err(error) => {
-                warn!("Could not deserialize request from input {}", error);
+                event!(Level::WARN, error = ?error, "Could not deserialize request");
                 None
             }
         }
@@ -63,15 +63,15 @@ pub struct MastodonLoginArgs {
 }
 
 fn try_deserialize_slice(slice: &[u8], kind: &str) -> Option<Value> {
-    if log_enabled!(Level::Debug) {
+    if event_enabled!(Level::DEBUG) {
         let slice_str = String::from_utf8_lossy(slice);
-        debug!("Deserializing {kind} {slice_str}")
+        event!(Level::DEBUG, kind = kind, slice = %slice_str, "Deserializing")
     }
 
     match serde_json::from_slice(slice) {
         Ok(value) => Some(value),
         Err(error) => {
-            warn!("Could not deserialize {kind}: {error}");
+            event!(Level::WARN, kind = kind, error = ?error, "Could not deserialize");
             None
         }
     }
